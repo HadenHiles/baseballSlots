@@ -13,7 +13,8 @@ var playerMoney = 1000;
 var winnings = 0;
 var jackpot = 5000;
 var turn = 0;
-var playerBet = 0;
+var playerBet = 1;
+var playerBetAmount = "";
 var winNumber = 0;
 var lossNumber = 0;
 var spinResult;
@@ -41,7 +42,8 @@ function init(){
         {src: "assets/images/smallTextBox.png", id: "smallTextBoxOuts"},
         {src: "assets/images/pitchButton.png", id: "pitchButton"},
         {src: "assets/images/bet-up.png", id: "betUp"},
-        {src: "assets/images/bet-down.png", id: "betDown"}
+        {src: "assets/images/bet-down.png", id: "betDown"},
+        {src: "assets/images/smallTextBox.png", id: "smallTextBoxBet"}
     ]);
 }
 
@@ -56,6 +58,8 @@ function handleComplete(event){
     var pitchButton = new createjs.Bitmap(queue.getResult("pitchButton"));
     var betUp = new createjs.Bitmap(queue.getResult("betUp"));
     var betDown = new createjs.Bitmap(queue.getResult("betDown"));
+    var smallTextBoxBet = new createjs.Bitmap(queue.getResult("smallTextBoxBet"));
+    var playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
 
     //position bitmaps
     slotBg.x += 130;
@@ -72,9 +76,10 @@ function handleComplete(event){
     betUp.y += 285;
     betDown.x += 172;
     betDown.y += 285;
-
-    //continually update the stage
-    createjs.Ticker.addEventListener("tick", tick);
+    smallTextBoxBet.x += 215;
+    smallTextBoxBet.y += 285;
+    playerBetAmount.x += 221;
+    playerBetAmount.y += 286;
 
     //Display bitmaps
     //stage.addChild(bg);
@@ -85,6 +90,36 @@ function handleComplete(event){
     stage.addChild(pitchButton);
     stage.addChild(betUp);
     stage.addChild(betDown);
+    stage.addChild(smallTextBoxBet);
+    stage.addChild(playerBetAmount);
+
+    betUp.addEventListener("click", increaseBet);
+    betDown.addEventListener("click", decreaseBet);
+
+    function increaseBet(){
+        stage.removeChild(playerBetAmount);
+        if(playerBet < 10){
+            playerBet = playerBet + 1;
+        }
+        playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
+        playerBetAmount.x += 221;
+        playerBetAmount.y += 286;
+        stage.addChild(playerBetAmount);
+    }
+    function decreaseBet(){
+        stage.removeChild(playerBetAmount);
+        if(playerBet > 1){
+            playerBet = playerBet - 1;
+        }
+        playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
+        playerBetAmount.x += 221;
+        playerBetAmount.y += 286;
+        stage.addChild(playerBetAmount);
+    }
+
+    //continually update the stage
+    createjs.Ticker.addEventListener("tick", tick);
+    createjs.Ticker.setFPS(40);
 }
 
 function tick(event){
@@ -273,16 +308,17 @@ function determineWinnings()
         lossNumber++;
         showLossMessage();
     }
-
 }
 
-/* When the player clicks the spin button the game kicks off */
-$("#spinButton").click(function () {
-    playerBet = $("div#betEntry>input").val();
+//CLICK EVENTS
+
+/* When the player clicks the pitch button the game starts */
+$('#pitchButton').click(function () {
+    playerBet = $('div#betEntry>input').val();
 
     if (playerMoney == 0)
     {
-        if (confirm("You ran out of Money! \nDo you want to play again?")) {
+        if (confirm("Game over! \nDo you want to play again?")) {
             resetAll();
             showPlayerStats();
         }
@@ -304,5 +340,4 @@ $("#spinButton").click(function () {
     else {
         alert("Please enter a valid bet amount");
     }
-
 });

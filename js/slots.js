@@ -62,15 +62,7 @@ function handleComplete(event){
     var betDown = new createjs.Bitmap(queue.getResult("betDown"));
     var smallTextBoxBet = new createjs.Bitmap(queue.getResult("smallTextBoxBet"));
     var playerBetAmount = new createjs.Text("Bet", "bold 34px Arial", "#fff");
-    winRatio = winNumber / turn;
-    var newWinRatio = (winRatio * 100).toFixed(2);
-    var playerStats = new createjs.Text("Jackpot: " + jackpot
-                                        + "\nMoney: " + playerMoney
-                                        + "\nTurn: " + turn
-                                        + "\nWins: " + winNumber
-                                        + "\nLosses: " + lossNumber
-                                        + "\nWin Ratio: " + newWinRatio + "%"
-                                        , "bold 18px Arial", "#fff");
+    var playerStats = showPlayerStats();
 
     //position bitmaps
     slotBg.x += 80;
@@ -170,13 +162,23 @@ function handleComplete(event){
     /* Utility function to show Player Stats */
     function showPlayerStats()
     {
-        winRatio = winNumber / turn;
-        $("#jackpot").text("Jackpot: " + jackpot);
-        $("#playerMoney").text("Player Money: " + playerMoney);
-        $("#playerTurn").text("Turn: " + turn);
-        $("#playerWins").text("Wins: " + winNumber);
-        $("#playerLosses").text("Losses: " + lossNumber);
-        $("#playerWinRatio").text("Win Ratio: " + (winRatio * 100).toFixed(2) + "%");
+        var newWinRatio = (winRatio * 100).toFixed(2);
+        var playerStats = new createjs.Text("Jackpot: " + jackpot
+            + "\nMoney: " + playerMoney
+            + "\nTurn: " + turn
+            + "\nWins: " + winNumber
+            + "\nLosses: " + lossNumber
+            + "\nWin Ratio: " + newWinRatio + "%"
+            , "bold 18px Arial", "#fff");
+        if(!this.playerStats){
+            return playerStats;
+        } else{
+            stage.removeChild(this.playerStats);
+            playerStats.x += 410;
+            playerStats.y += 85;
+            stage.addChild(playerStats);
+            return playerStats;
+        }
     }
 
     /* Utility function to reset all fruit tallies */
@@ -202,7 +204,6 @@ function handleComplete(event){
             winNumber = 0;
             lossNumber = 0;
             winRatio = 0;
-            playerStats = "";
 
             stage.removeChild(playerBetAmount);
             playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
@@ -343,9 +344,6 @@ function handleComplete(event){
             }
             else if (popFlies == 2) {
                 winnings = playerBet * 4;
-            }
-            else if (bars == 2) {
-                winnings = playerBet * 5;
             }
             else if (walks == 2) {
                 winnings = playerBet * 10;

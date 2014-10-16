@@ -18,7 +18,9 @@ canvas{
     -webkit-transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
     -o-transform: translate(-50%, -50%);
-    -webkit-box-shadow: 0 15px 11px -11px #000;
-    -moz-box-shadow: 0 15px 11px -11px #000;
-    box-shadow: 0 15px 11px -11px #000;
+    -webkit-box-shadow: 0 20px 16px -16px #000;
+    -moz-box-shadow: 0 20px 16px -16px #000;
+    -ms-box-shadow: 0 20px 16px -16px #000;
+    -o-box-shadow: 0 20px 16px -16px #000;
+    box-shadow: 0 20px 16px -16px #000;
 }

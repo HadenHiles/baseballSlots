@@ -403,7 +403,6 @@ function handleComplete(event){
     /* Utility function to show a win message and increase player money */
     function showWinMessage() {
         playerMoney += winnings;
-        createjs.Sound.play("cheer");
         $("div#winOrLose>p").text("Nice Hit! Here's your pay-cheque: $" + winnings);
         resetTally();
         checkJackPot();
@@ -479,36 +478,42 @@ function handleComplete(event){
             runs++;
             winnings = playerBet * 10;
             winNumber++;
+            createjs.Sound.play("hit");
             showWinMessage();
         }
         else if(doubles == 3) {
             runs = runs + 2;
             winnings = playerBet * 20;
             winNumber++;
+            createjs.Sound.play("hit");
             showWinMessage();
         }
         else if (triples == 3) {
             runs = runs + 3;
             winnings = playerBet * 30;
             winNumber++;
+            createjs.Sound.play("hit");
             showWinMessage();
         }
         else if (homeRuns == 3) {
             runs = runs + 4;
             winnings = playerBet * 100;
             winNumber++;
+            createjs.Sound.play("cheer");
             showWinMessage();
         }
         else if(groundRollDoubles == 3){
             runs = runs + 2;
             winnings = playerBet * 20;
             winNumber++;
+            createjs.Sound.play("cheer");
             showWinMessage();
         }
         else if (homeRuns == 1) {
             runs++;
             winnings = playerBet * 10;
             winNumber++;
+            createjs.Sound.play("cheer");
             showWinMessage();
         }
         if(strikes == 3 || popFlies == 3) {

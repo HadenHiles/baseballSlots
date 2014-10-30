@@ -11,14 +11,13 @@ var stage;
 var queue;
 var playerMoney = 1000;
 var winnings = 0;
-var jackpot = 5000;
+var jackpot = 1000;
 var pitches = 0;
 var playerBet = "Bet";
 var winNumber = 0;
 var lossNumber = 0;
 var betLine;
-var winRatio = 0;
-var fouls = 0;
+var winRatio = "0.00";
 var strikes = 0;
 var popFlies = 0;
 var singles = 0;
@@ -29,14 +28,16 @@ var homeRuns = 0;
 var groundRollDoubles = 0;
 var runs = 0;
 var outs = 0;
-var inning = 0;
+var inning = 1;
 
 function init(){
     stage = new createjs.Stage(canvas);
 
     queue = new createjs.LoadQueue(false);
+    queue.installPlugin(createjs.Sound);
     queue.addEventListener("complete", handleComplete);
     queue.loadManifest([
+        //images
         {src:  "assets/images/bg.jpg", id: "bg"},
         {src:  "assets/images/slotBg.png", id: "slotBg"},
         {src: "assets/images/largeTextBox.png", id: "moneyTextBox"},
@@ -54,42 +55,54 @@ function init(){
         {src: "assets/images/double.png", id: "double"},
         {src: "assets/images/triple.png", id: "triple"},
         {src: "assets/images/popfly.png", id: "popfly"},
-        {src: "assets/images/groundrolldouble.png", id: "groundrolldouble"}
+        {src: "assets/images/groundrolldouble.png", id: "groundrolldouble"},
+        //sounds
+        {src: "assets/sounds/playball.mp3", id: "playball"},
+        {src: "assets/sounds/pitch.mp3", id: "pitch"},
+        {src: "assets/sounds/hit.mp3", id: "hit"},
+        {src: "assets/sounds/out.mp3", id: "out"},
+        {src: "assets/sounds/strike.mp3", id: "strikeSound"},
+        {src: "assets/sounds/cheer.mp3", id: "cheer"},
+        {src: "assets/sounds/crowd.mp3", id: "crowd"},
+        {src: "assets/sounds/boo.mp3", id: "boo"}
     ]);
 }
 
 //Main function to execute the game methods
 function handleComplete(event){
-
-    //create bitmaps for images
-    var bg = new createjs.Bitmap(queue.getResult("bg"));
-    var slotBg = new createjs.Bitmap(queue.getResult("slotBg"));
-    var reel1 = new createjs.Bitmap(queue.getResult("blank"));
-    var reel2 = new createjs.Bitmap(queue.getResult("blank"));
-    var reel3 = new createjs.Bitmap(queue.getResult("blank"));
-    var moneyTextBox = new createjs.Bitmap(queue.getResult("moneyTextBox"));
+    createjs.Sound.play("playball");
+    //create text objects
     var moneyLabel = new createjs.Text("Money", "bold 18px Arial", "#fff");
-    var money = new createjs.Text(playerMoney, "bold 34px Arial", "#fff");
-    var runsBox = new createjs.Bitmap(queue.getResult("runsBox"));
     var runsLabel = new createjs.Text("Runs", "bold 18px Arial", "#fff");
     var runsNumber = new createjs.Text(runs, "bold 34px Arial", "#fff");
-    var outsBox = new createjs.Bitmap(queue.getResult("outsBox"));
     var outsLabel = new createjs.Text("Outs", "bold 18px Arial", "#fff");
     var outsNumber = new createjs.Text(outs, "bold 34px Arial", "#fff");
-    var pitchButton = new createjs.Bitmap(queue.getResult("pitchButton"));
-    var resetGame = new createjs.Bitmap(queue.getResult('resetGame'));
-    var betUp = new createjs.Bitmap(queue.getResult("betUp"));
-    var betDown = new createjs.Bitmap(queue.getResult("betDown"));
-    var betBox = new createjs.Bitmap(queue.getResult("betBox"));
     var playerBetAmount = new createjs.Text("Bet", "bold 34px Arial", "#fff");
     var playerStats = new createjs.Text("Jackpot: " + jackpot
         + "\nPitches: " + pitches
         + "\nWins: " + winNumber
         + "\nLosses: " + lossNumber
         + "\nWin Ratio: " + winRatio + "%"
+        + "\nInning: " + inning + "/3"
         , "bold 18px Arial", "#fff");
 
-    //position bitmaps
+    //create image objects
+    var bg = new createjs.Bitmap(queue.getResult("bg"));
+    var slotBg = new createjs.Bitmap(queue.getResult("slotBg"));
+    var reel1 = new createjs.Bitmap(queue.getResult("blank"));
+    var reel2 = new createjs.Bitmap(queue.getResult("blank"));
+    var reel3 = new createjs.Bitmap(queue.getResult("blank"));
+    var moneyTextBox = new createjs.Bitmap(queue.getResult("moneyTextBox"));
+    var money = new createjs.Text(playerMoney, "bold 34px Arial", "#fff");
+    var runsBox = new createjs.Bitmap(queue.getResult("runsBox"));
+    var outsBox = new createjs.Bitmap(queue.getResult("outsBox"));
+    var pitchButton = new createjs.Bitmap(queue.getResult("pitchButton"));
+    var resetGame = new createjs.Bitmap(queue.getResult('resetGame'));
+    var betUp = new createjs.Bitmap(queue.getResult("betUp"));
+    var betDown = new createjs.Bitmap(queue.getResult("betDown"));
+    var betBox = new createjs.Bitmap(queue.getResult("betBox"));
+
+    //position objects
     slotBg.x += 80;
     slotBg.y += 85;
     reel3.x += 292;
@@ -159,36 +172,23 @@ function handleComplete(event){
     pitchButton.on("click", pitch, false);
     resetGame.on("click", resetAll, false);
 
-    function increaseBet(){
-        stage.removeChild(playerBetAmount);
-        if(playerBet == "Bet"){
-            playerBet = 1;
-        } else if(playerBet < 10){
-            playerBet = playerBet + 1;
-        }
-        playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
-        playerBetAmount.x += 171;
-        playerBetAmount.y += 306;
-        stage.addChild(playerBetAmount);
-    }
-    function decreaseBet(){
-        stage.removeChild(playerBetAmount);
-        if(playerBet == "Bet"){
-            playerBet = 1;
-        } else if(playerBet > 1 && playerBet != "Bet"){
-            playerBet = playerBet - 1;
-        }
-        playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
-        playerBetAmount.x += 171;
-        playerBetAmount.y += 306;
-        stage.addChild(playerBetAmount);
-    }
     /* When the player clicks the pitch button the game starts */
     function pitch() {
         if (playerMoney == 0) {
             if (confirm("Game over! \nDo you want to play again?")) {
                 resetAll();
                 updatePlayerStats();
+            }
+        }
+        else if (outs == 3 && inning < 3) {
+            alert("Nice inning! Keep it up!");
+            outs = 0;
+            inning++;
+            updatePlayerStats();
+        }
+        else if(outs == 3 && inning >= 3){
+            if (confirm("Good Game! \nDo you want to play again?")) {
+                resetAll();
             }
         }
         else if (playerBet > playerMoney) {
@@ -198,17 +198,7 @@ function handleComplete(event){
             alert("Please select a bet amount!.");
         }
         else if (playerBet <= playerMoney) {
-            if (outs == 3 && inning < 4) {
-                alert("Nice inning! Keep it up!");
-                outs = 0;
-                inning++;
-                updatePlayerStats();
-            } else {
-                if (confirm("Good Game! \nDo you want to play again?")) {
-                    resetAll();
-                    updatePlayerStats();
-                }
-            }
+            createjs.Sound.play("pitch");
             betLine = getBetLine();
             //UPDATE THE REEL IMAGES
             stage.removeChild(reel3);
@@ -244,6 +234,31 @@ function handleComplete(event){
         }
     }
 
+    function increaseBet(){
+        stage.removeChild(playerBetAmount);
+        if(playerBet == "Bet"){
+            playerBet = 1;
+        } else if(playerBet < 10){
+            playerBet = playerBet + 1;
+        }
+        playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
+        playerBetAmount.x += 171;
+        playerBetAmount.y += 306;
+        stage.addChild(playerBetAmount);
+    }
+    function decreaseBet(){
+        stage.removeChild(playerBetAmount);
+        if(playerBet == "Bet"){
+            playerBet = 1;
+        } else if(playerBet > 1 && playerBet != "Bet"){
+            playerBet = playerBet - 1;
+        }
+        playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
+        playerBetAmount.x += 171;
+        playerBetAmount.y += 306;
+        stage.addChild(playerBetAmount);
+    }
+
     /* Utility function to show Player Stats */
     function updatePlayerStats()
     {
@@ -256,6 +271,7 @@ function handleComplete(event){
             + "\nWins: " + winNumber
             + "\nLosses: " + lossNumber
             + "\nWin Ratio: " + winRatio + "%"
+            + "\nInning: " + inning + "/3"
             , "bold 18px Arial", "#fff");
         playerStats.x += 410;
         playerStats.y += 85;
@@ -298,7 +314,7 @@ function handleComplete(event){
     function resetAll() {
         playerMoney = 1000;
         winnings = 0;
-        jackpot = 5000;
+        jackpot = 1000;
         pitches = 0;
         playerBet = "Bet";
         winNumber = 0;
@@ -306,7 +322,7 @@ function handleComplete(event){
         winRatio = 0;
         runs = 0;
         outs = 0;
-        inning = 0;
+        inning = 1;
 
         stage.removeChild(playerBetAmount);
         playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
@@ -320,6 +336,7 @@ function handleComplete(event){
             + "\nWins: " + winNumber
             + "\nLosses: " + lossNumber
             + "\nWin Ratio: " + winRatio + "%"
+            + "\nInning: " + inning + "/3"
             , "bold 18px Arial", "#fff");
         playerStats.x += 410;
         playerStats.y += 85;
@@ -386,6 +403,7 @@ function handleComplete(event){
     /* Utility function to show a win message and increase player money */
     function showWinMessage() {
         playerMoney += winnings;
+        createjs.Sound.play("cheer");
         $("div#winOrLose>p").text("Nice Hit! Here's your pay-cheque: $" + winnings);
         resetTally();
         checkJackPot();
@@ -496,10 +514,12 @@ function handleComplete(event){
         if(strikes == 3 || popFlies == 3) {
             outs++;
             lossNumber++;
+            createjs.Sound.play("out");
             showLossMessage();
         }
         else {
             lossNumber++;
+            jackpot = jackpot + playerBet;
             showLossMessage();
         }
     }

@@ -29,6 +29,7 @@ var homeRuns = 0;
 var groundRollDoubles = 0;
 var runs = 0;
 var outs = 0;
+var inning = 0;
 
 function init(){
     stage = new createjs.Stage(canvas);
@@ -184,8 +185,7 @@ function handleComplete(event){
     }
     /* When the player clicks the pitch button the game starts */
     function pitch() {
-        if (playerMoney == 0 || outs == 3)
-        {
+        if (playerMoney == 0) {
             if (confirm("Game over! \nDo you want to play again?")) {
                 resetAll();
                 updatePlayerStats();
@@ -198,6 +198,17 @@ function handleComplete(event){
             alert("Please select a bet amount!.");
         }
         else if (playerBet <= playerMoney) {
+            if (outs == 3 && inning < 4) {
+                alert("Nice inning! Keep it up!");
+                outs = 0;
+                inning++;
+                updatePlayerStats();
+            } else {
+                if (confirm("Good Game! \nDo you want to play again?")) {
+                    resetAll();
+                    updatePlayerStats();
+                }
+            }
             betLine = getBetLine();
             //UPDATE THE REEL IMAGES
             stage.removeChild(reel3);
@@ -273,15 +284,14 @@ function handleComplete(event){
     }
 
     /* Utility function to reset all fruit tallies */
-    function resetFruitTally() {
-        fouls = 0;
+    function resetTally() {
+        strikes = 0;
         singles = 0;
         doubles = 0;
         triples = 0;
         popFlies = 0;
-        walks = 0;
+        groundRollDoubles = 0;
         homeRuns = 0;
-        strikes = 0;
     }
 
     /* Utility function to reset the player stats */
@@ -296,6 +306,7 @@ function handleComplete(event){
         winRatio = 0;
         runs = 0;
         outs = 0;
+        inning = 0;
 
         stage.removeChild(playerBetAmount);
         playerBetAmount = new createjs.Text(playerBet, "bold 34px Arial", "#fff");
@@ -376,7 +387,7 @@ function handleComplete(event){
     function showWinMessage() {
         playerMoney += winnings;
         $("div#winOrLose>p").text("Nice Hit! Here's your pay-cheque: $" + winnings);
-        resetFruitTally();
+        resetTally();
         checkJackPot();
     }
 
@@ -384,7 +395,7 @@ function handleComplete(event){
     function showLossMessage() {
         playerMoney -= playerBet;
         $("div#winOrLose>p").text("You Lost!");
-        resetFruitTally();
+        resetTally();
     }
 
     /* Utility function to check if a value falls within a range of bounds */
@@ -406,11 +417,11 @@ function handleComplete(event){
         for (var spin = 0; spin < 3; spin++) {
             outCome[spin] = Math.floor((Math.random() * 65) + 1);
             switch (outCome[spin]) {
-                case checkRange(outCome[spin], 1, 27):  // 41.5% probability
+                case checkRange(outCome[spin], 1, 22):  // 41.5% probability
                     betLine[spin] = "strike";
                     strikes++;
                     break;
-                case checkRange(outCome[spin], 28, 37): // 15.4% probability
+                case checkRange(outCome[spin], 23, 37): // 15.4% probability
                     betLine[spin] = "single";
                     singles++;
                     break;

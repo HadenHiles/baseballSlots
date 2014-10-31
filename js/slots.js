@@ -2,7 +2,7 @@
  * Created with IntelliJ IDEA.
  * User: HandsHiles
  * Date: 2014-10-31
- * Time: 8:46 PM
+ * Time: 11:46 AM
  * File Name: slots.js
  * Author: Haden Hiles
  * Last Modified by: Haden Hiles
@@ -16,20 +16,19 @@ var stage;
 var queue;
 var progress;
 var playerMoney = 1000;
-var winnings = "";
+var winnings = 0;
 var jackpot = 1000;
 var pitches = 0;
 var playerBet = "Bet";
 var winNumber = 0;
 var lossNumber = 0;
 var betLine;
-var winRatio = "0.00";
+var winRatio = 0;
 var strikes = 0;
 var popFlies = 0;
 var singles = 0;
 var doubles = 0;
 var triples = 0;
-var walks = 0;
 var homeRuns = 0;
 var groundRollDoubles = 0;
 var runs = 0;
@@ -92,11 +91,11 @@ function handleComplete(event){
     var outsLabel = new createjs.Text("Outs", "bold 18px Arial", "#fff");
     var outsNumber = new createjs.Text(outs, "bold 34px Arial", "#fff");
     var playerBetAmount = new createjs.Text("Bet", "bold 34px Arial", "#fff");
-    var playerStats = new createjs.Text("Jackpot: " + jackpot
+    var playerStats = new createjs.Text("Jackpot: $" + jackpot
         + "\nPitches: " + pitches
         + "\nWins: " + winNumber
         + "\nLosses: " + lossNumber
-        + "\nWinnings: " + winnings
+        + "\nWinnings: $" + winnings
         + "\nWin Ratio: " + winRatio + "%"
         + "\nInning: " + inning + "/3"
         , "bold 18px Arial", "#fff");
@@ -200,7 +199,7 @@ function handleComplete(event){
 
     /* When the player clicks the pitch button, and all requirements are met, the game starts */
     function pitch() {
-        winnings = "";
+        winnings = 0;
         if (playerMoney == 0) {
             if (confirm("Game over! \nDo you want to play again?")) {
                 resetAll();
@@ -293,15 +292,15 @@ function handleComplete(event){
     /* Utility function to show Player Stats */
     function updatePlayerStats()
     {
-        var winRatio = (winNumber/pitches * 100).toFixed(2);
+        var winRatio = (winNumber/pitches * 100).toFixed(0);
 
         //update the player stats
         stage.removeChild(playerStats);
-        playerStats = new createjs.Text("Jackpot: " + jackpot
+        playerStats = new createjs.Text("Jackpot: $" + jackpot
             + "\nPitches: " + pitches
             + "\nWins: " + winNumber
             + "\nLosses: " + lossNumber
-            + "\nWinnings: " + winnings
+            + "\nWinnings: $" + winnings
             + "\nWin Ratio: " + winRatio + "%"
             + "\nInning: " + inning + "/3"
             , "bold 18px Arial", "#fff");
@@ -348,7 +347,7 @@ function handleComplete(event){
         createjs.Sound.play("playball");
 
         playerMoney = 1000;
-        winnings = "";
+        winnings = 0;
         jackpot = 1000;
         pitches = 0;
         playerBet = "Bet";
@@ -367,11 +366,11 @@ function handleComplete(event){
 
         playerMoney += winnings;
         stage.removeChild(playerStats);
-        playerStats = new createjs.Text("Jackpot: " + jackpot
+        playerStats = new createjs.Text("Jackpot: $" + jackpot
             + "\nPitches: " + pitches
             + "\nWins: " + winNumber
             + "\nLosses: " + lossNumber
-            + "\nWinnings: " + winnings
+            + "\nWinnings: $" + winnings
             + "\nWin Ratio: " + winRatio + "%"
             + "\nInning: " + inning + "/3"
             , "bold 18px Arial", "#fff");

@@ -9,6 +9,7 @@
 var canvas = document.getElementById("slotStage");
 var stage;
 var queue;
+var progress;
 var playerMoney = 1000;
 var winnings = 0;
 var jackpot = 1000;
@@ -36,6 +37,8 @@ function init(){
     queue = new createjs.LoadQueue(false);
     queue.installPlugin(createjs.Sound);
     queue.addEventListener("complete", handleComplete);
+
+    queue.setMaxConnections(20);
     queue.loadManifest([
         //images
         {src:  "assets/images/bg.jpg", id: "bg"},
@@ -48,6 +51,7 @@ function init(){
         {src: "assets/images/bet-up.png", id: "betUp"},
         {src: "assets/images/bet-down.png", id: "betDown"},
         {src: "assets/images/smallTextBox.png", id: "betBox"},
+        {src: "assets/images/close.png", id: "close"},
         {src: "assets/images/blank-m.png", id: "blank"},
         {src: "assets/images/strike.png", id: "strike"},
         {src: "assets/images/homerun.png", id: "homerun"},
@@ -57,20 +61,24 @@ function init(){
         {src: "assets/images/popfly.png", id: "popfly"},
         {src: "assets/images/groundrolldouble.png", id: "groundrolldouble"},
         //sounds
+        {src: "assets/sounds/organ.mp3", id: "organ"},
         {src: "assets/sounds/playball.mp3", id: "playball"},
         {src: "assets/sounds/pitch.mp3", id: "pitch"},
         {src: "assets/sounds/hit.mp3", id: "hit"},
         {src: "assets/sounds/out.mp3", id: "out"},
-        {src: "assets/sounds/strike.mp3", id: "strikeSound"},
+        {src: "assets/sounds/strike3.mp3", id: "strike3"},
         {src: "assets/sounds/cheer.mp3", id: "cheer"},
         {src: "assets/sounds/crowd.mp3", id: "crowd"},
         {src: "assets/sounds/boo.mp3", id: "boo"}
     ]);
 }
 
-//Main function to execute the game methods
+//Main function to execute the game functions
 function handleComplete(event){
-    createjs.Sound.play("playball");
+    //play introduction sounds
+    createjs.Sound.play("organ");
+    setTimeout( function(){createjs.Sound.play("playball")}, 11600 );
+
     //create text objects
     var moneyLabel = new createjs.Text("Money", "bold 18px Arial", "#fff");
     var runsLabel = new createjs.Text("Runs", "bold 18px Arial", "#fff");
@@ -101,6 +109,7 @@ function handleComplete(event){
     var betUp = new createjs.Bitmap(queue.getResult("betUp"));
     var betDown = new createjs.Bitmap(queue.getResult("betDown"));
     var betBox = new createjs.Bitmap(queue.getResult("betBox"));
+    var close = new createjs.Bitmap(queue.getResult("close"));
 
     //position objects
     slotBg.x += 80;
@@ -143,6 +152,8 @@ function handleComplete(event){
     playerBetAmount.y += 306;
     playerStats.x += 410;
     playerStats.y += 85;
+    close.x += 590;
+    close.y += 10;
 
     //Display bitmaps
     stage.addChild(bg);
@@ -166,11 +177,18 @@ function handleComplete(event){
     stage.addChild(betBox);
     stage.addChild(playerBetAmount);
     stage.addChild(playerStats);
+    stage.addChild(close);
 
     betUp.on("click", increaseBet, false);
     betDown.on("click", decreaseBet, false);
     pitchButton.on("click", pitch, false);
     resetGame.on("click", resetAll, false);
+    close.on("click", closeGame, false);
+
+    /* Close the game */
+    function closeGame(){
+        window.location.href = "http://haden.moonrockfamily.ca";
+    }
 
     /* When the player clicks the pitch button the game starts */
     function pitch() {
@@ -187,7 +205,9 @@ function handleComplete(event){
             updatePlayerStats();
         }
         else if(outs == 3 && inning >= 3){
+            createjs.Sound.play("crowd");
             if (confirm("Good Game! \nDo you want to play again?")) {
+                createjs.Sound.stop("crowd");
                 resetAll();
             }
         }
@@ -312,6 +332,9 @@ function handleComplete(event){
 
     /* Utility function to reset the player stats */
     function resetAll() {
+        //play introduction sounds
+        createjs.Sound.play("playball");
+
         playerMoney = 1000;
         winnings = 0;
         jackpot = 1000;
@@ -474,7 +497,19 @@ function handleComplete(event){
     /* This function calculates the player's winnings, if any */
     function determineWinnings()
     {
-        if (singles == 3) {
+        if(strikes == 3) {
+            outs++;
+            lossNumber++;
+            createjs.Sound.play("strike3");
+            showLossMessage();
+        }
+        else if(popFlies == 3) {
+            outs++;
+            lossNumber++;
+            createjs.Sound.play("out");
+            showLossMessage();
+        }
+        else if (singles == 3) {
             runs++;
             winnings = playerBet * 10;
             winNumber++;
@@ -506,7 +541,7 @@ function handleComplete(event){
             runs = runs + 2;
             winnings = playerBet * 20;
             winNumber++;
-            createjs.Sound.play("cheer");
+            createjs.Sound.play("hit");
             showWinMessage();
         }
         else if (homeRuns == 1) {
@@ -516,11 +551,12 @@ function handleComplete(event){
             createjs.Sound.play("cheer");
             showWinMessage();
         }
-        if(strikes == 3 || popFlies == 3) {
-            outs++;
-            lossNumber++;
-            createjs.Sound.play("out");
-            showLossMessage();
+        else if (homeRuns == 2) {
+            runs = runs + 3;
+            winnings = playerBet * 10;
+            winNumber++;
+            createjs.Sound.play("cheer");
+            showWinMessage();
         }
         else {
             lossNumber++;

@@ -76,8 +76,8 @@ function init(){
 //Main function to execute the game functions
 function handleComplete(event){
     //play introduction sounds
-    createjs.Sound.play("organ");
-    setTimeout( function(){createjs.Sound.play("playball")}, 11600 );
+    createjs.Sound.play('organ');
+    setTimeout( function(){createjs.Sound.play('playball')}, 11600 );
 
     //create text objects
     var moneyLabel = new createjs.Text("Money", "bold 18px Arial", "#fff");
@@ -207,9 +207,11 @@ function handleComplete(event){
         else if(outs == 3 && inning >= 3){
             createjs.Sound.play("crowd");
             if (confirm("Good Game! \nDo you want to play again?")) {
-                createjs.Sound.stop("crowd");
                 resetAll();
+            } else{
+                window.location.href = "http://haden.moonrockfamily.ca";
             }
+            createjs.Sound.stop("crowd");
         }
         else if (playerBet > playerMoney) {
             alert("You don't have enough Money to place that bet.");

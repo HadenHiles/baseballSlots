@@ -105,9 +105,9 @@ function handleComplete(event){
     //create image objects
     var bg = new createjs.Bitmap(queue.getResult("bg"));
     var slotBg = new createjs.Bitmap(queue.getResult("slotBg"));
-    var reel1 = new createjs.Bitmap(queue.getResult("blank"));
-    var reel2 = new createjs.Bitmap(queue.getResult("blank"));
-    var reel3 = new createjs.Bitmap(queue.getResult("blank"));
+    var reel1 = new createjs.Bitmap(queue.getResult("homerun"));
+    var reel2 = new createjs.Bitmap(queue.getResult("homerun"));
+    var reel3 = new createjs.Bitmap(queue.getResult("homerun"));
     var moneyTextBox = new createjs.Bitmap(queue.getResult("moneyTextBox"));
     var money = new createjs.Text(playerMoney, "bold 34px Arial", "#fff");
     var runsBox = new createjs.Bitmap(queue.getResult("runsBox"));
@@ -415,9 +415,9 @@ function handleComplete(event){
         stage.removeChild(reel2);
         stage.removeChild(reel1);
         stage.removeChild(slotBg);
-        reel1 = new createjs.Bitmap(queue.getResult("blank"));
-        reel2 = new createjs.Bitmap(queue.getResult("blank"));
-        reel3 = new createjs.Bitmap(queue.getResult("blank"));
+        reel1 = new createjs.Bitmap(queue.getResult("homerun"));
+        reel2 = new createjs.Bitmap(queue.getResult("homerun"));
+        reel3 = new createjs.Bitmap(queue.getResult("homerun"));
         slotBg = new createjs.Bitmap(queue.getResult("slotBg"));
         //position bitmaps
         slotBg.x += 80;

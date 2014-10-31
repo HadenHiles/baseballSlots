@@ -1,9 +1,14 @@
 /**
  * Created with IntelliJ IDEA.
  * User: HandsHiles
- * Date: 2014-10-11
- * Time: 11:46 AM
- * To change this template use File | Settings | File Templates.
+ * Date: 2014-10-31
+ * Time: 8:46 PM
+ * File Name: slots.js
+ * Author: Haden Hiles
+ * Last Modified by: Haden Hiles
+ * Description: This program is a slot machine with baseball themed design
+ * and objectives.
+ * Revision History: https://github.com/HadenHiles/baseballSlots/commits/master
  */
 //Global variables
 var canvas = document.getElementById("slotStage");
@@ -11,7 +16,7 @@ var stage;
 var queue;
 var progress;
 var playerMoney = 1000;
-var winnings = 0;
+var winnings = "";
 var jackpot = 1000;
 var pitches = 0;
 var playerBet = "Bet";
@@ -31,6 +36,7 @@ var runs = 0;
 var outs = 0;
 var inning = 1;
 
+//Initialize the stage and retrieve the assets to be used in the game
 function init(){
     stage = new createjs.Stage(canvas);
 
@@ -90,6 +96,7 @@ function handleComplete(event){
         + "\nPitches: " + pitches
         + "\nWins: " + winNumber
         + "\nLosses: " + lossNumber
+        + "\nWinnings: " + winnings
         + "\nWin Ratio: " + winRatio + "%"
         + "\nInning: " + inning + "/3"
         , "bold 18px Arial", "#fff");
@@ -155,7 +162,7 @@ function handleComplete(event){
     close.x += 590;
     close.y += 10;
 
-    //Display bitmaps
+    //Display objects
     stage.addChild(bg);
     stage.addChild(reel3);
     stage.addChild(reel2);
@@ -179,19 +186,21 @@ function handleComplete(event){
     stage.addChild(playerStats);
     stage.addChild(close);
 
+    //Assign click handlers to the various buttons
     betUp.on("click", increaseBet, false);
     betDown.on("click", decreaseBet, false);
     pitchButton.on("click", pitch, false);
     resetGame.on("click", resetAll, false);
     close.on("click", closeGame, false);
 
-    /* Close the game */
+    //Close the game
     function closeGame(){
         window.location.href = "http://haden.moonrockfamily.ca";
     }
 
-    /* When the player clicks the pitch button the game starts */
+    /* When the player clicks the pitch button, and all requirements are met, the game starts */
     function pitch() {
+        winnings = "";
         if (playerMoney == 0) {
             if (confirm("Game over! \nDo you want to play again?")) {
                 resetAll();
@@ -292,6 +301,7 @@ function handleComplete(event){
             + "\nPitches: " + pitches
             + "\nWins: " + winNumber
             + "\nLosses: " + lossNumber
+            + "\nWinnings: " + winnings
             + "\nWin Ratio: " + winRatio + "%"
             + "\nInning: " + inning + "/3"
             , "bold 18px Arial", "#fff");
@@ -338,7 +348,7 @@ function handleComplete(event){
         createjs.Sound.play("playball");
 
         playerMoney = 1000;
-        winnings = 0;
+        winnings = "";
         jackpot = 1000;
         pitches = 0;
         playerBet = "Bet";
@@ -355,11 +365,13 @@ function handleComplete(event){
         playerBetAmount.y += 306;
         stage.addChild(playerBetAmount);
 
+        playerMoney += winnings;
         stage.removeChild(playerStats);
         playerStats = new createjs.Text("Jackpot: " + jackpot
             + "\nPitches: " + pitches
             + "\nWins: " + winNumber
             + "\nLosses: " + lossNumber
+            + "\nWinnings: " + winnings
             + "\nWin Ratio: " + winRatio + "%"
             + "\nInning: " + inning + "/3"
             , "bold 18px Arial", "#fff");
@@ -428,19 +440,29 @@ function handleComplete(event){
     /* Utility function to show a win message and increase player money */
     function showWinMessage() {
         playerMoney += winnings;
-        $("div#winOrLose>p").text("Nice Hit! Here's your pay-cheque: $" + winnings);
+        stage.removeChild(playerStats);
+        playerStats = new createjs.Text("Jackpot: " + jackpot
+            + "\nPitches: " + pitches
+            + "\nWins: " + winNumber
+            + "\nLosses: " + lossNumber
+            + "\nWinnings: " + winnings
+            + "\nWin Ratio: " + winRatio + "%"
+            + "\nInning: " + inning + "/3"
+            , "bold 18px Arial", "#fff");
+        playerStats.x += 410;
+        playerStats.y += 85;
+        stage.addChild(playerStats);
         resetTally();
         checkJackPot();
     }
 
-    /* Utility function to show a loss message and reduce player money */
+    /* Show a loss message and reduce player money */
     function showLossMessage() {
         playerMoney -= playerBet;
-        $("div#winOrLose>p").text("You Lost!");
         resetTally();
     }
 
-    /* Utility function to check if a value falls within a range of bounds */
+    /* Check if a value falls within a range of bounds */
     function checkRange(value, lowerBounds, upperBounds) {
         if (value >= lowerBounds && value <= upperBounds)
         {
@@ -496,7 +518,9 @@ function handleComplete(event){
         return betLine;
     }
 
-    /* This function calculates the player's winnings, if any */
+    /* This function calculates the player's winnings, if any,
+     * and determines what runs were scored or if any outs occurred
+     */
     function determineWinnings()
     {
         if(strikes == 3) {
@@ -567,11 +591,12 @@ function handleComplete(event){
         }
     }
 
-    //continually update the stage
+    //set a listener for the stage update
     createjs.Ticker.addEventListener("tick", tick);
     createjs.Ticker.setFPS(40);
 }
 
+//update the stage
 function tick(event){
     stage.update();
 }

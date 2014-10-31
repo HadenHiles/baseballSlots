@@ -39,6 +39,8 @@ var inning = 1;
 function init(){
     stage = new createjs.Stage(canvas);
 
+    stage.enableMouseOver(20);
+
     queue = new createjs.LoadQueue(false);
     queue.installPlugin(createjs.Sound);
     queue.addEventListener("complete", handleComplete);
@@ -187,10 +189,20 @@ function handleComplete(event){
 
     //Assign click handlers to the various buttons
     betUp.on("click", increaseBet, false);
+    betUp.addEventListener("mouseover", function(){betUp.alpha = .8; stage.update();});
+    betUp.addEventListener("rollout", function(){betUp.alpha = 1; stage.update();});
     betDown.on("click", decreaseBet, false);
+    betDown.addEventListener("mouseover", function(){betDown.alpha = .8; stage.update();});
+    betDown.addEventListener("rollout", function(){betDown.alpha = 1; stage.update();});
     pitchButton.on("click", pitch, false);
+    pitchButton.addEventListener("mouseover", function(){pitchButton.alpha = .8; stage.update();});
+    pitchButton.addEventListener("rollout", function(){pitchButton.alpha = 1; stage.update();});
     resetGame.on("click", resetAll, false);
+    resetGame.addEventListener("mouseover", function(){resetGame.alpha = .8; stage.update();});
+    resetGame.addEventListener("rollout", function(){resetGame.alpha = 1; stage.update();});
     close.on("click", closeGame, false);
+    close.addEventListener("mouseover", function(){close.alpha = .8; stage.update();});
+    close.addEventListener("rollout", function(){close.alpha = 1; stage.update();});
 
     //Close the game
     function closeGame(){
